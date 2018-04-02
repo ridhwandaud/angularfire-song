@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, AlertController, ActionSheetController } from 'ionic-angular';
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { Observable } from 'rxjs/Observable';
 
 @IonicPage()
 @Component({
@@ -9,11 +10,13 @@ import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 })
 export class HomePage {
 
-  songs: AngularFireList<any>;
+  songsRef:AngularFireList<any>;
+  songs:Observable<any[]>;
 
   constructor(public navCtrl: NavController, public navParams: NavParams, afDatabase: AngularFireDatabase,
   public alertCtrl: AlertController, public actionSheetCtrl: ActionSheetController) {
-
+    //afDatabase.list<Item>('/songs').valueChanges().subscribe(console.log);
+    this.songsRef = afDatabase.list('/songs');
     this.songs = afDatabase.list('/songs').valueChanges();
   }
 
@@ -41,7 +44,7 @@ export class HomePage {
         {
           text: 'Save',
           handler: data => {
-            const newSongRef = this.songs.push({});
+            const newSongRef = this.songsRef.push({});
    
             newSongRef.set({
               id: newSongRef.key,
@@ -82,7 +85,7 @@ export class HomePage {
   }
 
   removeSong(songId: string){
-    this.songs.remove(songId);
+    this.songsRef.remove(songId);
   }
 
   updateSong(songId, songTitle){
@@ -106,7 +109,7 @@ export class HomePage {
         {
           text: 'Save',
           handler: data => {
-            this.songs.update(songId, {
+            this.songsRef.update(songId, {
               title: data.title
             });
           }
